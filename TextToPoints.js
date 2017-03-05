@@ -4,15 +4,21 @@
  *
  *	@Param str - String of Text
  *	@Param fill - Boolean flag to check if only edges need to be detected or entire text
+ *	@Param pixelCallback - boolean callback method that takes rgba values as parameter and returns true/false to set it as text or not
  */
 
-var TextToPoints = function(str, fill) {
+var TextToPoints = function(str, fill, pixelCallback) {
 
 	// set text if str is not defined
 	str = str || "HELLO";
 
 	// set fill if not given
 	fill = fill || false;
+
+	// set pixelCallback as Simple logic to check if white text on black background
+	pixelCallback = pixelCallback || function(color, pixel) {
+		return ((color[0] + color[1] + color[2]) / 3 > 50);
+	};
 
 	/**
 	 *	checkPixel method
@@ -31,8 +37,11 @@ var TextToPoints = function(str, fill) {
 		var blue = imageData[i+2];
 		var alpha = imageData[i+3];
 
-		// Simple logic  to check if white text on black background
-		return ((red + blue + green) / 3 > 50);
+		var color = [red, green, blue, alpha];
+		var pixel = Math.floor(i / 4);
+
+		// Use the callback to allow user to create their own selection methods
+		return pixelCallback(color, pixel);
 	};
 
 	/**
